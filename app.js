@@ -1,28 +1,29 @@
 require('dotenv-extended').load({ path: './.env' });
 
-var builder = require('botbuilder');
-var restify = require('restify');
-var request = require('request');
-var R = require('ramda');
-var moment = require('moment');
+let builder = require('botbuilder');
+let restify = require('restify');
+let request = require('request');
+let R = require('ramda');
+let moment = require('moment');
+let dateEntityRecognizer = require('./services/date-entity-recognizer');
 
 // Setup Restify Server
-var server = restify.createServer();
+let server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
     console.log('%s listening to %s', server.name, server.url);
 });
 // Create connector and listen for messages
-var connector = new builder.ChatConnector({
+let connector = new builder.ChatConnector({
     appId: process.env.MICROSOFT_APP_ID,
     appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
 server.post('/api/messages', connector.listen());
 
-var bot = new builder.UniversalBot(connector, function (session) {
+let bot = new builder.UniversalBot(connector, function (session) {
     session.send('Sorry, I did not understand \'%s\'. Type \'help\' if you need assistance.', session.message.text);
 });
 
-var recognizer = new builder.LuisRecognizer(process.env.LUIS_MODEL_URL);
+let recognizer = new builder.LuisRecognizer(process.env.LUIS_MODEL_URL);
 bot.recognizer(recognizer);
 
 bot.dialog('Hello', [
@@ -75,13 +76,7 @@ bot.dialog('Availability', [
     function(session, args, next) {
         let unit_type  = builder.EntityRecognizer.findEntity(args.intent.entities, 'unit_type');
         let bedCount   = builder.EntityRecognizer.findEntity(args.intent.entities, 'builtin.number');
-        let targetDate = builder.EntityRecognizer.parseTime(args.intent.entities);
-
-        console.log(args);
-        console.log(targetDate);
-
-        session.dialogData.bed_count = bedCount || null;
-        session.dialogData.date = targetDate || null;
+        let targetDate = dateEntityRecognizer.parseTime(args.intent.entities);
 
         if (!session.dialogData.bed_count && unit_type) {
             session.dialogData.bed_count = 0;
@@ -91,11 +86,9 @@ bot.dialog('Availability', [
             session.dialogData.bed_count = bedCount.resolution ? bedCount.resolution.value : null;
         }
 
-        if (!session.dialogData.date && targetDate && targetDate.resolution && targetDate.resolution.values) {
-            session.dialogData.date = targetDate.resolution.values[0].start;
+        if (!session.dialogData.date) {
+            session.dialogData.date = targetDate;
         }
-
-        console.log('date', targetDate);
 
         next();
     },
@@ -126,14 +119,12 @@ bot.dialog('Availability', [
     function(session, results) {
         if (!session.dialogData.date && results) {
             session.dialogData.date = results && results.response && results.response.resolution
-                ?results.response.resolution.start : null;
+                ? results.response.resolution.start || results.response.resolution.values[0].value : null;
         }
 
         if (session.dialogData.date) {
-            session.dialogData.date = moment(session.dialogData.date).format('YYYY-MM-DD');
+            session.dialogData.date = moment.utc(session.dialogData.date).format('YYYY-MM-DD');
         }
-
-        console.log(session.dialogData.date);
 
         session.endDialog('You are looking for a ' +session.dialogData.bed_count+ ' bedroom unit available by ' + moment(session.dialogData.date).format('L'));
     }
