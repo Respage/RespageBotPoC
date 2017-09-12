@@ -1,6 +1,6 @@
 "use strict";
 
-const RespageApi = require('./respage-api-service');
+const RespageApi = require('./respage-api');
 const API_PATH = 'apartment-listings';
 
 let getApartmentListings = async function(campaignId) {

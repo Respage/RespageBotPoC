@@ -1,6 +1,6 @@
 "use strict";
 
-process.env = require('dotenv-extended').load({ path: './config/.env' });
+require('dotenv-extended').load({ path: './config/.env' });
 
 let builder = require('botbuilder');
 let restify = require('restify');
@@ -8,6 +8,8 @@ let request = require('request');
 let R = require('ramda');
 let moment = require('moment');
 let dateEntityRecognizer = require('./services/date-entity-recognizer');
+let aptListingService = require('./services/apartment-listings');
+let utils = require('./services/utils');
 
 // Setup Restify Server
 let server = restify.createServer();
@@ -53,8 +55,8 @@ bot.dialog('LookingForApartment', [
         }
     },
     function (session, results, next) {
-        let email = extractValidEmail(results.response);
-        let phone = extractValidPhone(results.response);
+        let email = utils.extractValidEmail(results.response);
+        let phone = utils.extractValidPhone(results.response);
 
         session.userData.email = email || null;
         session.userData.phone = phone || null;
@@ -117,7 +119,7 @@ bot.dialog('Availability', [
             next();
         }
     },
-    function(session, results) {
+    async function(session, results) {
         if (!session.dialogData.date && results) {
             session.dialogData.date = results && results.response && results.response.resolution
                 ? results.response.resolution.start || results.response.resolution.values[0].value : null;
@@ -127,62 +129,10 @@ bot.dialog('Availability', [
             session.dialogData.date = moment.utc(session.dialogData.date).format('YYYY-MM-DD');
         }
 
+        let listings = await aptListingService.getApartmentListings(498);
+
         session.endDialog('You are looking for a ' +session.dialogData.bed_count+ ' bedroom unit available by ' + moment(session.dialogData.date).format('L'));
     }
 ]).triggerAction({
     matches: 'Availability'
 });
-
-/** EMAIL PHONE RESPONSE */
-let extractValidEmail = function(message) {
-    if (!message) return null;
-
-    let parts = message.replace(/,/g,'').split(/\s/).map(x => x.replace(/^,|^\.|,$|\.$/g, ''));
-
-    for (let i = 0; parts && i < parts.length; i++) {
-        if (isValidEmail(parts[i])) return parts[i];
-    }
-
-    return null;
-};
-
-let extractValidPhone = function(message) {
-    if (!message) return null;
-
-    let email = extractValidEmail(message) || '';
-
-    let parts = message.replace(email, '').replace(/\W/g, '').match(/\d+/g);
-
-    for (let i = 0; parts && i < parts.length; i++) {
-        if (isValidPhone(parts[i])) return parts[i];
-    }
-
-    return null;
-};
-
-let isValidEmail = function(email) {
-    const MAX_EMAIL_LENGTH = 254;
-    const MAX_EMAIL_NAME_LENGTH = 64;
-    const MAX_EMAIL_DOMAIN_LENGTH = 63;
-    const EMAIL_TEST = /^[-!#$%&'*+\/0-9=?A-Z^_a-z{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-?\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/;
-
-    if (!email) return false;
-    if (email.length > MAX_EMAIL_LENGTH) return false;
-    if (!EMAIL_TEST.test(email)) return false;
-
-    let parts = email.split('@');
-    if (parts[0].length > MAX_EMAIL_NAME_LENGTH) return false;
-
-    let domainParts = parts[1].split('.');
-    return !R.any(x => x.length > MAX_EMAIL_DOMAIN_LENGTH)(domainParts);
-};
-
-let isValidPhone = function(phone) {
-    let stripped = phone.replace(/\D/g,'');
-
-    if (stripped.length === 7)  return true; //555-0123
-    if (stripped.length === 10) return true; //800-555-0123
-    if (stripped.length === 11 && stripped.startsWith('1')) return true; //1-800-555-0123
-
-    return false;
-};
