@@ -1,3 +1,5 @@
+"use strict";
+
 require('dotenv-extended').load({ path: './.env' });
 
 let builder = require('botbuilder');
@@ -99,7 +101,6 @@ bot.dialog('Availability', [
                 minValue: 0,
                 maxValue: 3,
                 maxRetries: 2,
-                inputHint: '0-3'
             })
         } else {
             next();
