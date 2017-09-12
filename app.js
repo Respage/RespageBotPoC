@@ -129,7 +129,7 @@ bot.dialog('Availability', [
             session.dialogData.date = moment.utc(session.dialogData.date).format('YYYY-MM-DD');
         }
 
-        let listings = await aptListingService.getApartmentListings(498);
+        let listings = await aptListingService.getUnits(498);
 
         session.endDialog('You are looking for a ' +session.dialogData.bed_count+ ' bedroom unit available by ' + moment(session.dialogData.date).format('L'));
     }

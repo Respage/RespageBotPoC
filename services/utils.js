@@ -28,6 +28,13 @@ let extractValidPhone = function(message) {
     return null;
 };
 
+
+module.exports = {
+    extractValidEmail,
+    extractValidPhone
+};
+
+
 let isValidEmail = function(email) {
     const MAX_EMAIL_LENGTH = 254;
     const MAX_EMAIL_NAME_LENGTH = 64;
@@ -53,9 +60,4 @@ let isValidPhone = function(phone) {
     if (stripped.length === 11 && stripped.startsWith('1')) return true; //1-800-555-0123
 
     return false;
-};
-
-module.exports = {
-    extractValidEmail,
-    extractValidPhone
 };
