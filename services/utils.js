@@ -1,6 +1,6 @@
 "use strict";
 
-const R = require('R');
+const R = require('ramda');
 
 let extractValidEmail = function(message) {
     if (!message) return null;
@@ -27,7 +27,6 @@ let extractValidPhone = function(message) {
 
     return null;
 };
-
 
 module.exports = {
     extractValidEmail,
