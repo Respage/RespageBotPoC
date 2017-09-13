@@ -1,25 +1,24 @@
 "use strict";
 
-const RespageApi = require('./respage-api');
-const R = require('ramda');
-const moment = require('moment');
-const API_PATH = 'apartment-listings';
+var RespageApi = require('./respage-api');
+var R = require('ramda');
+var moment = require('moment');
+var API_PATH = 'apartment-listings';
 
-let getUnits = async function(campaignId, beds, date) {
-    try {
-        let listings = await getApartmentListings(campaignId);
-        if (!listings.length) return [];
+var getUnits = function(campaignId, beds, date) {
+    return getApartmentListings(campaignId)
+    .then(function(listings) {
+            if (!listings.length) return [];
 
-        let units = listings.reduce((units, listing) => units.concat(listing['units'] || []), []);
-        if (!units || !units.length) return [];
+            var units = listings.reduce((units, listing) => units.concat(listing['units'] || []), []);
+            if (!units || !units.length) return [];
 
-        let filteredUnits = R.filter(x => bedroomsMatch(x, beds) && availableDateMatches(x, date), units);
-        return filteredUnits.length ? filteredUnits : R.filter(x => bedroomsMatch(x, beds), units);
-
-    } catch(e) {
+            var filteredUnits = R.filter(x => bedroomsMatch(x, beds) && availableDateMatches(x, date), units);
+            return filteredUnits.length ? filteredUnits : R.filter(x => bedroomsMatch(x, beds), units);
+    }).catch(function(e) {
         console.log(e);
         return [];
-    }
+    })
 };
 
 
@@ -28,17 +27,17 @@ module.exports = {
 };
 
 
-let getApartmentListings = async function(campaignId) {
-    try {
-        let listings = await RespageApi.apiRequest(`${API_PATH}/${campaignId}`, {method: 'GET'});
-        return listings || [];
-    } catch(e) {
-        console.log(e);
-        return [];
-    }
-};
+// var getApartmentListings = async function(campaignId) {
+//     try {
+//         var listings = await RespageApi.apiRequest(`${API_PATH}/${campaignId}`, {method: 'GET'});
+//         return listings || [];
+//     } catch(e) {
+//         console.log(e);
+//         return [];
+//     }
+// };
 
-let bedroomsMatch = function(unit, target) {
+var bedroomsMatch = function(unit, target) {
     if (!unit) return false;
     if (target === null) return true;
     if (!target && target !== 0) return true;
@@ -50,7 +49,7 @@ let bedroomsMatch = function(unit, target) {
     return (unit['beds'] === parseInt(target));
 };
 
-let availableDateMatches = function(unit, target) {
+var availableDateMatches = function(unit, target) {
     if (!unit) return false;
     if (unit.available === false) return false;
     if (!unit.available_on) return true;
