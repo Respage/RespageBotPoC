@@ -1,8 +1,8 @@
 {
-  "name": "botbuilder-luis-actionbinding-samples",
-  "version": "1.0.0",
-  "description": "Bot Builder LUIS Action Binding - Samples",
-  "author": "Microsoft Corp.",
+  "name": "respage-botbuilder-poc",
+  "version": "0.0.1",
+  "description": "Azure BotBuilder proof of concept for Respage",
+  "author": "Mike Gallouedec",
   "license": "MIT",
   "dependencies": {
     "botbuilder": "^3.8.2",

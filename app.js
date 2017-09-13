@@ -167,7 +167,7 @@ bot.dialog('Availability', [
         session.send('I found these units that match your criteria');
         session.send(carousel);
 
-        session.replaceDialog('Helped');
+        session.beginDialog('Helped');
     }
 ]).triggerAction({
     matches: 'Availability'
@@ -194,10 +194,10 @@ bot.dialog('Helped', [
     function(session, result) {
         if (!result.response) {
             console.log(typeof result.response, result.response);
-            session.replaceDialog('Goodbye');
+            session.beginDialog('Goodbye');
         } else {
             console.log('goodbye');
-            session.replaceDialog('LookingForApartment');
+            session.beginDialog('LookingForApartment');
         }
     }
 ]);
