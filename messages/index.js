@@ -180,7 +180,13 @@ bot.dialog('Helped', [
                 'Availability', 'I have other questions', 'Tell me a joke','Goodbye'
             ], {listStyle: 3});
         }
-        session.endDialog();
+    },
+    function(session, results) {
+        if (results.response && results.response.entity) {
+            return session.beginDialog(results.response.entity);
+        } else {
+            session.endDialog();
+        }
     }
 ]);
 
