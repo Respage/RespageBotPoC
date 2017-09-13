@@ -1,6 +1,6 @@
 "use strict";
 
-require('dotenv-extended').load({ path: './config/.env' });
+if (!process.env) require('dotenv-extended').load({ path: './config/.env' });
 
 let builder = require('botbuilder');
 let restify = require('restify');
