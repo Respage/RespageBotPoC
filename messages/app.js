@@ -205,6 +205,8 @@ bot.dialog('Goodbye', [
     matches: 'Goodbye'
 });
 
+console.log('useEmulator', useEmulator);
+
 if (useEmulator) {
     let restify = require('restify');
     let server = restify.createServer();
@@ -213,5 +215,6 @@ if (useEmulator) {
     });
     server.post('/api/messages', connector.listen());
 } else {
+    console.log('not using emulator');
     module.exports = { default: connector.listen() }
 }
