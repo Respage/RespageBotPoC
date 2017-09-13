@@ -3,6 +3,7 @@
 if (!process.env) require('dotenv-extended').load({ path: './config/.env' });
 
 let builder = require('botbuilder');
+let botbuilder_azure = require("botbuilder-azure");
 let R = require('ramda');
 let moment = require('moment');
 let dateEntityRecognizer = require('./services/date-entity-recognizer');

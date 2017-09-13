@@ -1,19 +1,19 @@
 "use strict";
 
-var RespageApi = require('./respage-api');
-var R = require('ramda');
-var moment = require('moment');
-var API_PATH = 'apartment-listings';
+const RespageApi = require('./respage-api');
+const R = require('ramda');
+const moment = require('moment');
+const API_PATH = 'apartment-listings';
 
-var getUnits = function(campaignId, beds, date) {
+let getUnits = function(campaignId, beds, date) {
     return getApartmentListings(campaignId)
     .then(function(listings) {
             if (!listings.length) return [];
 
-            var units = listings.reduce((units, listing) => units.concat(listing['units'] || []), []);
+            let units = listings.reduce((units, listing) => units.concat(listing['units'] || []), []);
             if (!units || !units.length) return [];
 
-            var filteredUnits = R.filter(x => bedroomsMatch(x, beds) && availableDateMatches(x, date), units);
+            let filteredUnits = R.filter(x => bedroomsMatch(x, beds) && availableDateMatches(x, date), units);
             return filteredUnits.length ? filteredUnits : R.filter(x => bedroomsMatch(x, beds), units);
     }).catch(function(e) {
         console.log(e);
@@ -27,9 +27,9 @@ module.exports = {
 };
 
 
-// var getApartmentListings = async function(campaignId) {
+// let getApartmentListings = async function(campaignId) {
 //     try {
-//         var listings = await RespageApi.apiRequest(`${API_PATH}/${campaignId}`, {method: 'GET'});
+//         let listings = await RespageApi.apiRequest(`${API_PATH}/${campaignId}`, {method: 'GET'});
 //         return listings || [];
 //     } catch(e) {
 //         console.log(e);
@@ -37,7 +37,7 @@ module.exports = {
 //     }
 // };
 
-var bedroomsMatch = function(unit, target) {
+let bedroomsMatch = function(unit, target) {
     if (!unit) return false;
     if (target === null) return true;
     if (!target && target !== 0) return true;
@@ -49,7 +49,7 @@ var bedroomsMatch = function(unit, target) {
     return (unit['beds'] === parseInt(target));
 };
 
-var availableDateMatches = function(unit, target) {
+let availableDateMatches = function(unit, target) {
     if (!unit) return false;
     if (unit.available === false) return false;
     if (!unit.available_on) return true;
