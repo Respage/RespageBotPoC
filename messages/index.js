@@ -180,15 +180,6 @@ bot.dialog('Helped', [
                 'Availability', 'I have other questions', 'Tell me a joke','Goodbye'
             ], {listStyle: 3});
         }
-    },
-    function(session, result) {
-        if (!result.response) {
-            console.log(typeof result.response, result.response);
-            session.beginDialog('Goodbye');
-        } else {
-            console.log('goodbye');
-            session.beginDialog('LookingForApartment');
-        }
     }
 ]);
 
