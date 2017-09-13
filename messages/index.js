@@ -208,10 +208,9 @@ bot.on("event", function (event) {
     var msg = new builder.Message().address(event.address);
     msg.textLocale("en-us");
     if (event.name === "buttonClicked") {
-        msg.text("I see that you just pushed that button");
+        bot.beginDialog(address, 'Hello')
     }
-    bot.send(msg);
-})
+});
 
 console.log('useEmulator', useEmulator);
 
