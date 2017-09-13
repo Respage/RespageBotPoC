@@ -27,15 +27,15 @@ module.exports = {
 };
 
 
-// let getApartmentListings = async function(campaignId) {
-//     try {
-//         let listings = await RespageApi.apiRequest(`${API_PATH}/${campaignId}`, {method: 'GET'});
-//         return listings || [];
-//     } catch(e) {
-//         console.log(e);
-//         return [];
-//     }
-// };
+let getApartmentListings = function(campaignId) {
+    return RespageApi.apiRequest(`${API_PATH}/${campaignId}`, {method: 'GET'})
+        .then((listings) => listings || [])
+        .catch((e) => {
+                console.log(e);
+                return [];
+        });
+
+};
 
 let bedroomsMatch = function(unit, target) {
     if (!unit) return false;
