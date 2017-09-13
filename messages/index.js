@@ -1,6 +1,6 @@
 "use strict";
 
-if (!process.env) require('dotenv-extended').load({ path: './config/.env' });
+if (!process.env.NODE_ENV) require('dotenv-extended').load({ path: './config/.env' });
 
 let builder = require('botbuilder');
 let botbuilder_azure = require("botbuilder-azure");
@@ -203,6 +203,15 @@ bot.dialog('Goodbye', [
 ]).triggerAction({
     matches: 'Goodbye'
 });
+
+bot.on("event", function (event) {
+    var msg = new builder.Message().address(event.address);
+    msg.textLocale("en-us");
+    if (event.name === "buttonClicked") {
+        msg.text("I see that you just pushed that button");
+    }
+    bot.send(msg);
+})
 
 console.log('useEmulator', useEmulator);
 
