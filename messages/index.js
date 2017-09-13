@@ -180,6 +180,7 @@ bot.dialog('Helped', [
                 'Availability', 'I have other questions', 'Tell me a joke','Goodbye'
             ], {listStyle: 3});
         }
+        session.endDialog();
     }
 ]);
 
