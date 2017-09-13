@@ -3,7 +3,6 @@
 if (!process.env) require('dotenv-extended').load({ path: './config/.env' });
 
 let builder = require('botbuilder');
-let restify = require('restify');
 let R = require('ramda');
 let moment = require('moment');
 let dateEntityRecognizer = require('./services/date-entity-recognizer');
@@ -11,22 +10,17 @@ let aptListingService = require('./services/apartment-listings');
 let formatter = require('./services/response-formatter');
 let utils = require('./services/utils');
 
-// Setup Restify Server
-let server = restify.createServer();
-server.listen(process.env.port || process.env.PORT || 3978, function () {
-    console.log('%s listening to %s', server.name, server.url);
+let useEmulator = (process.env.NODE_ENV == 'development');
+
+
+let connector = useEmulator ? new builder.ChatConnector() : new botbuilder_azure.BotServiceConnector({
+    appId: process.env['MICROSOFT_APP_ID'],
+    appPassword: process.env['MICROSOFT_APP_PASSWORD']
 });
-// Create connector and listen for messages
-let connector = new builder.ChatConnector({
-    appId: process.env.MICROSOFT_APP_ID,
-    appPassword: process.env.MICROSOFT_APP_PASSWORD
-});
-server.post('/api/messages', connector.listen());
 
 let bot = new builder.UniversalBot(connector, function (session) {
     session.send('Sorry, I did not understand \'%s\'. Type \'help\' if you need assistance.', session.message.text);
 });
-
 let recognizer = new builder.LuisRecognizer(process.env.LUIS_MODEL_URL);
 bot.recognizer(recognizer);
 
@@ -210,3 +204,14 @@ bot.dialog('Goodbye', [
 ]).triggerAction({
     matches: 'Goodbye'
 });
+
+if (useEmulator) {
+    let restify = require('restify');
+    let server = restify.createServer();
+    server.listen(3978, function() {
+        console.log('test bot endpoint at http://localhost:3978/api/messages');
+    });
+    server.post('/api/messages', connector.listen());
+} else {
+    module.exports = { default: connector.listen() }
+}
