@@ -134,9 +134,7 @@ bot.dialog('Availability', [
             next();
         }
     },
-    async(session, results) => {
-        let units, cards;
-
+    function(session, results) {
         if (!session.dialogData.date && results) {
             session.dialogData.date = results && results.response && results.response.resolution
                 ? results.response.resolution.start || results.response.resolution.values[0].value : null;
@@ -146,22 +144,22 @@ bot.dialog('Availability', [
             session.dialogData.date = moment.utc(session.dialogData.date).format('YYYY-MM-DD');
         }
 
-        try {
-            units = await aptListingService.getUnits(498, session.dialogData.bed_count, session.dialogData.date);
-            cards = formatter.formatUnitCards(session, units);
-        } catch(e) {
-            console.log(e);
-            session.send(`Call the office for information on availability and pricing`)
-        }
+        return aptListingService.getUnits(498, session.dialogData.bed_count, session.dialogData.date)
+            .then((units) => {
+                let cards = formatter.formatUnitCards(session, units);
+                let carousel = new builder.Message(session)
+                    .attachmentLayout(builder.AttachmentLayout.carousel)
+                    .attachments(cards);
 
-        let carousel = new builder.Message(session)
-            .attachmentLayout(builder.AttachmentLayout.carousel)
-            .attachments(cards);
+                session.send('I found these units that match your criteria');
+                session.send(carousel);
 
-        session.send('I found these units that match your criteria');
-        session.send(carousel);
-
-        session.beginDialog('Helped');
+                session.beginDialog('Helped');
+            })
+            .catch((e) => {
+                console.log(e);
+                session.send(`Call the office for information on availability and pricing`)
+            });
     }
 ]).triggerAction({
     matches: 'Availability'
