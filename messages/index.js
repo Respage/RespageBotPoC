@@ -27,10 +27,7 @@ bot.recognizer(recognizer);
 
 bot.dialog('Hello', [
     function (session, args, next) {
-        let name = builder.EntityRecognizer.findEntity(args.intent.entities, 'username');
-        if (name) session.userData.name = name.entity;
-        let greeting = name && name.entity ? `, ${name.entity}!` : '!';
-        session.send(`Hi! I'm chatbot... Pleased to make your acquaintance${greeting}`);
+        session.send(`Hi! I'm chatbot... Thanks for stopping by!`);
 
         session.sendTyping();
         setTimeout(function() {
