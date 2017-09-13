@@ -205,10 +205,10 @@ bot.dialog('Goodbye', [
 });
 
 bot.on("event", function (event) {
-    var msg = new builder.Message().address(event.address);
-    msg.textLocale("en-us");
+    // var msg = new builder.Message().address(event.address);
+    // msg.textLocale("en-us");
     if (event.name === "buttonClicked") {
-        bot.beginDialog(address, 'Hello')
+        bot.beginDialog(event.address, 'Hello')
     }
 });
 
