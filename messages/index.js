@@ -134,7 +134,7 @@ bot.dialog('Availability', [
             next();
         }
     },
-    async function(session, results) {
+    async(session, results) => {
         let units, cards;
 
         if (!session.dialogData.date && results) {
