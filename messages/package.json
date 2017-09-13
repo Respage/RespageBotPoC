@@ -4,6 +4,7 @@
   "description": "Azure BotBuilder proof of concept for Respage",
   "author": "Mike Gallouedec",
   "license": "MIT",
+  "engines" : { "node" : "7.10.0" },
   "dependencies": {
     "botbuilder": "^3.8.2",
     "dotenv-extended": "^1.0.4",
